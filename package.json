@@ -31,7 +31,7 @@
   "author": "Demis Bellot <https://github.com/mythz>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/litdb/bun-sqlite.git"
+    "url": "git+https://github.com/litdb/better-sqlite.git"
   },
   "bugs": "https://github.com/litdb/litdb/issues",
   "devDependencies": {
