@@ -36,7 +36,8 @@
   "bugs": "https://github.com/litdb/litdb/issues",
   "devDependencies": {
     "@types/bun": "^1.1.13",
-    "bun-plugin-dts": "^0.3.0"
+    "bun-plugin-dts": "^0.3.0",
+    "tsx": "^4.19.2"
   },
   "dependencies": {
     "@types/better-sqlite3": "^7.6.11",
