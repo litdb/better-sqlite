@@ -39,7 +39,7 @@ const jane = db.one<Contact>($.from(Contact).where(c => $`${c.email} = ${janeEma
 
 // Insert examples
 const {lastInsertRowid:bobId} = db.insert(new Contact({ name:"Bob", email:"bob@email.org" }))
-const {lastInsertRowid} = db.exec`INSERT INTO Contact(name,email) VALUES('Joe','joe@doe.org')`
+const {lastInsertRowid} = db.exec`INSERT INTO Contact(name,email) VALUES('Joe','joe@doe.io')`
 const name = 'Alice', email = 'alice@email.org'
 db.exec`INSERT INTO Contact(name,email) VALUES (${name}, ${email})`
 
@@ -48,7 +48,7 @@ const hasId = <Table extends { id:number }>(id:number) =>
     (x:Table) => $.sql($`${x.id} = $id`, { id })
 
 const contacts = db.all($.from(Contact).into(Contact))                // => Contact[]
-const bob = db.one($.from(Contact).where(hasId(bobId)).into(Contact)) // => Contact    
+const bob = db.one($.from(Contact).where(hasId(bobId)).into(Contact)) // => Contact
 const contactsCount = db.value($.from(Contact).select`COUNT(*)`)      // => number
 const emails = db.column($.from(Contact).select(c => $`${c.email}`))  // => string[]
 const contactsArray = db.arrays($.from(Contact))                      // => any[][]
