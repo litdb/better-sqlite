@@ -1,9 +1,7 @@
 import Database, { Statement as DriverStatement } from "better-sqlite3"
 import type { 
-    ColumnDefinition, Driver, Connection, SyncConnection, DbBinding, Statement, TableDefinition, TypeConverter, Fragment, SyncStatement, Dialect,
-    Changes, ColumnType, Constructor,
-    ClassParam,
-    SqlBuilder,
+    Driver, Connection, SyncConnection, DbBinding, Statement, TypeConverter, Fragment, SyncStatement, Dialect,
+    Changes, Constructor, ClassParam, SqlBuilder,
 } from "litdb"
 import { 
     Sql, DbConnection, NamingStrategy, SyncDbConnection, DefaultValues, converterFor, DateTimeConverter, 
@@ -190,63 +188,6 @@ export class Sqlite implements Driver
         this.schema = this.$.schema = new SqliteSchema(this)
         this.types = new SqliteTypes()
     }
-
-    quote(name: string): string { return `"${name}"` }
-    
-    quoteTable(name: string): string { return this.quote(this.strategy.tableName(name)) }
-
-    quoteColumn(name: string): string { return this.quote(this.strategy.columnName(name)) }
-
-    sqlTableNames(): string {
-        return "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%'"
-    }
-
-    sqlIndexDefinition(table: TableDefinition, column: ColumnDefinition): string {
-        const unique = column.unique ? 'UNIQUE INDEX' : 'INDEX'
-        return `CREATE ${unique} idx_${table.name}_${column.name} ON ${this.quoteTable(table.name)} (${this.quoteColumn(column.name)})`
-    }
-
-    sqlColumnDefinition(column: ColumnDefinition): string {
-        let dataType = column.type
-        let type = this.types.native.includes(dataType as ColumnType) ? dataType : undefined
-        if (!type) {
-            for (const [sqliteType, typeMapping] of Object.entries(this.types.map)) {
-                if (typeMapping.includes(dataType as ColumnType)) {
-                    type = sqliteType
-                    break
-                }
-            }
-        }
-        if (!type) type = dataType
-
-        let sb = `${this.quoteColumn(column.name)} ${type}`
-        if (column.primaryKey) {
-            sb += ' PRIMARY KEY'
-        }
-        if (column.autoIncrement) {
-            sb += ' AUTOINCREMENT'
-        }
-        if (column.required) {
-            sb += ' NOT NULL'
-        }
-        if (column.unique && !column.index) {
-            sb += ' UNIQUE'
-        }
-        if (column.defaultValue) {
-            const val = this.variables[column.defaultValue] ?? column.defaultValue
-            sb += ` DEFAULT ${val}`
-        }
-        return sb
-    }
-
-    sqlLimit(offset?: number, limit?: number): Fragment {
-        if (offset == null && limit == null)
-            throw new Error(`Invalid argument sqlLimit(${offset}, ${limit})`)
-        const frag = offset
-            ? this.$.sql(`LIMIT $limit OFFSET $offset`, { offset, limit:limit ?? -1 })
-            : this.$.sql(`LIMIT $limit`, { limit })
-        return frag
-    }
 }
 
 export class SqliteConnection implements Connection, SyncConnection {
@@ -296,6 +237,15 @@ export class SqliteConnection implements Connection, SyncConnection {
         } else {
             return new SqliteStatement(this.db.prepare<any,ParamsType>(sql) as any)
         }
+    }
+
+    close() { 
+        this.db.close()
+        return Promise.resolve() 
+    }
+
+    closeSync() {
+        this.db.close()
     }
 }
 

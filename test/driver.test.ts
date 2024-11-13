@@ -2,7 +2,7 @@ import { describe, it } from 'node:test'
 import { expect } from 'expect'
 import { contacts, Contact, Order } from './data'
 import { sync as db, $ } from './db'
-import { useFilter, omit, pick, } from 'litdb'
+import { useFilterSync, omit, pick, } from 'litdb'
 
 const recreateContacts = () => {
     db.dropTable(Contact)
@@ -62,7 +62,7 @@ describe('SQLite Driver Tests', () => {
 
     it ('does Filter prepareSync', () => {
         const sqls:string[] = []
-        const sub = useFilter(db, sql => sqls.push(sql as string))
+        const sub = useFilterSync(db, sql => sqls.push(sql as string))
         db.one`SELECT 1`
         db.one`SELECT 2`
         expect(sqls).toEqual(['SELECT 1', 'SELECT 2'])
@@ -74,7 +74,7 @@ describe('SQLite Driver Tests', () => {
     it ('does CRUD Contact Table', () => {
 
         var sub:any = null
-        // const sub = useFilter(db, sql => console.log(sql))
+        // const sub = useFilterSync(db, sql => console.log(sql))
         
         db.dropTable(Contact)
 
@@ -113,7 +113,7 @@ describe('SQLite Driver Tests', () => {
         expect(one.age).toBe(updateContact.age)
 
         // named props
-        // sub = useFilter(db, sql => console.log(sql))
+        // sub = useFilterSync(db, sql => console.log(sql))
         db.exec($.update(Contact).set({ age:41, city:'Austin', state:'Texas' }).where(c => $`${c.age} = ${updateContact.age}`))
         expect(db.value($.from(Contact).where(c => $`${c.age} = 41`).rowCount())).toBe(2)
         
@@ -160,7 +160,7 @@ describe('SQLite Driver Tests', () => {
     it ('can select column', () => {
         recreateContacts()
 
-        // const sub = useFilter(db, sql => console.log(sql))
+        // const sub = useFilterSync(db, sql => console.log(sql))
         const q = $.from(Contact)
         expect(db.column(q.clone().select(c => $`${c.id}`))).toEqual(contacts.map(x => x.id))
 
@@ -181,7 +181,7 @@ describe('SQLite Driver Tests', () => {
         recreateContacts()
 
         const sub = false
-        // const sub = useFilter(db, sql => console.log(sql))
+        // const sub = useFilterSync(db, sql => console.log(sql))
         
         const q = $.from(Contact).select({ props:['id', 'firstName', 'lastName', 'age', 'email', 'city'] })
 
