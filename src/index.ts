@@ -1,4 +1,4 @@
-import Database, { Statement as DbStatement } from "better-sqlite3"
+import Database, { Statement as DriverStatement } from "better-sqlite3"
 import type { 
     ColumnDefinition, Driver, Connection, SyncConnection, DbBinding, Statement, TableDefinition, TypeConverter, Fragment, SyncStatement, Dialect,
     Changes, ColumnType, Constructor,
@@ -76,7 +76,7 @@ export function connect(options?:ConnectionOptions|string) {
 class SqliteStatement<RetType, ParamsType extends DbBinding[]>
     implements Statement<RetType, ParamsType>, SyncStatement<RetType, ParamsType>
 {
-    native: DbStatement<ParamsType, RetType>
+    native: DriverStatement<ParamsType, RetType>
     _as:RetType|undefined
 
     constructor(statement: DbStamentType<ParamsType,RetType>) {
