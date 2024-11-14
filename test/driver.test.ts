@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test'
 import { expect } from 'expect'
 import { contacts, Contact, Order } from './data'
-import { sync as db, $ } from './db'
+import { $, db } from './db'
 import { useFilterSync, omit, pick, } from 'litdb'
 
 const recreateContacts = () => {

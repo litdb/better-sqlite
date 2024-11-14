@@ -197,7 +197,7 @@ export class SqliteConnection implements Connection, SyncConnection {
     schema: Schema
     dialect: Dialect
 
-    constructor(public db:Database.Database, public driver:Driver & {
+    constructor(public native:Database.Database, public driver:Driver & {
         $:ReturnType<typeof Sql.create>
     }) {
         this.$ = driver.$
@@ -217,9 +217,9 @@ export class SqliteConnection implements Connection, SyncConnection {
                     sb += `?${i+1}`
                 }
             }
-            return new SqliteStatement(this.db.prepare<ParamsType, ReturnType>(sb))
+            return new SqliteStatement(this.native.prepare<ParamsType, ReturnType>(sb))
         } else {
-            return new SqliteStatement(this.db.prepare<ParamsType, ReturnType>(sql))
+            return new SqliteStatement(this.native.prepare<ParamsType, ReturnType>(sql))
         }
     }
 
@@ -233,19 +233,19 @@ export class SqliteConnection implements Connection, SyncConnection {
                     sb += `?${i+1}`
                 }
             }
-            return new SqliteStatement(this.db.prepare<any,ParamsType>(sb) as any)
+            return new SqliteStatement(this.native.prepare<any,ParamsType>(sb) as any)
         } else {
-            return new SqliteStatement(this.db.prepare<any,ParamsType>(sql) as any)
+            return new SqliteStatement(this.native.prepare<any,ParamsType>(sql) as any)
         }
     }
 
     close() { 
-        this.db.close()
+        this.native.close()
         return Promise.resolve() 
     }
 
     closeSync() {
-        this.db.close()
+        this.native.close()
     }
 }
 
@@ -255,7 +255,7 @@ class SqliteDbConnection extends DbConnection {
     }
 }
 class SqliteSyncDbConnection extends SyncDbConnection {
-    get db() { return (this.connection as SqliteConnection).db }
+    get db() { return (this.connection as SqliteConnection).native }
 
     prepareSync<T>(str: TemplateStringsArray | SqlBuilder | Fragment, ...params: any[]) 
         : [SyncStatement<T,DbBinding[]>|SyncStatement<T,any>, any[]|Record<string,any>, T|undefined]

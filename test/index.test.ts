@@ -1,7 +1,7 @@
 import { describe, it, before } from 'node:test'
 import { expect } from 'expect'
 import { contacts, Contact } from './data'
-import { sync as db } from './db'
+import { db } from './db'
 
 describe('SQLite Driver Tests', () => {
 

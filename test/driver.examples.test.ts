@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import { expect } from 'expect'
-import { sync as db, $ } from './db'
+import { $, db } from './db'
 import { table, column, pick } from 'litdb'
 
 @table() class Contact {

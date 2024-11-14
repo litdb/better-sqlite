@@ -15,16 +15,16 @@ node install @litdb/better-sqlite
 ```ts
 import { connect } from "@litdb/better-sqlite"
 
-export const connection = connect("app.db")
-export const { $, async, sync } = connection
+export const connection = connect("app.db") // WAL enabled by default
+export const { $, sync:db, async, native } = connection
 ```
 
-> WAL is enabled by default
+> When needed use `native` to access underlying `better-sqlite` driver
 
 **app.ts**
 
 ```ts
-import { $, sync as db } from "./db"
+import { $, db } from "./db"
 import { Contact } from "./models"
 
 db.dropTable(Contact)
