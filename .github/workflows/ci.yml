@@ -35,3 +35,14 @@ jobs:
         name: Run test
         run: |
           npm test
+      - id: setup-bun
+        name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - id: build
+        name: Build
+        run: |
+          bun install
+          bun install -g uglify-js shx
+          bun run build
