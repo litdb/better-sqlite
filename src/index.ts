@@ -1,12 +1,11 @@
 import Database, { Statement as DriverStatement } from "better-sqlite3"
 import type { 
-    Driver, Connection, SyncConnection, DbBinding, Statement, TypeConverter, Fragment, SyncStatement, Dialect,
+    Driver, Connection, SyncConnection, DbBinding, Statement, Fragment, SyncStatement, Dialect,
     Changes, Constructor, ClassParam, SqlBuilder,
 } from "litdb"
 import { 
-    Sql, DbConnection, NamingStrategy, SyncDbConnection, DefaultValues, converterFor, DateTimeConverter, 
-    DialectTypes, SqliteDialect, SqliteTypes, DefaultStrategy, Schema, IS, SqliteSchema,
-    toStr,
+    Sql, DbConnection, NamingStrategy, SyncDbConnection, SqliteDialect, SqliteTypes, DefaultStrategy, Schema, 
+    IS, SqliteSchema, toStr,
 } from "litdb"
 
 const ENABLE_WAL = "PRAGMA journal_mode = WAL;"
@@ -161,32 +160,19 @@ class SqliteStatement<RetType, ParamsType extends DbBinding[]>
     }
 }
 
-export class Sqlite implements Driver
+class Sqlite implements Driver
 {
     name: string
     dialect:Dialect
     schema:Schema
     $:ReturnType<typeof Sql.create>
     strategy:NamingStrategy = new DefaultStrategy()
-    variables: { [key: string]: string } = {
-        [DefaultValues.NOW]: 'CURRENT_TIMESTAMP',
-        [DefaultValues.MAX_TEXT]: 'TEXT',
-        [DefaultValues.MAX_TEXT_UNICODE]: 'TEXT',
-        [DefaultValues.TRUE]: '1',
-        [DefaultValues.FALSE]: '0',
-    }
-    types: DialectTypes
-
-    converters: { [key: string]: TypeConverter } = {
-        ...converterFor(new DateTimeConverter, "DATE", "DATETIME", "TIMESTAMP", "TIMESTAMPZ"),
-    }
 
     constructor() {
         this.dialect = new SqliteDialect()
         this.$ = this.dialect.$
         this.name = this.constructor.name
-        this.schema = this.$.schema = new SqliteSchema(this)
-        this.types = new SqliteTypes()
+        this.schema = this.$.schema = new SqliteSchema(this, this.$, new SqliteTypes())
     }
 }
 
