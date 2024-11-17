@@ -74,37 +74,30 @@ class SqliteStatement<RetType, ParamsType extends DbBinding[]>
     implements Statement<RetType, ParamsType>, SyncStatement<RetType, ParamsType>
 {
     native: DriverStatement<ParamsType, RetType>
+    $:ReturnType<typeof Sql.create>
     _as:RetType|undefined
-
-    constructor(statement: DbStamentType<ParamsType,RetType>) {
+    constructor(statement: DbStamentType<ParamsType,RetType>, $:ReturnType<typeof Sql.create>) {
         this.native = statement
-    }
-
-    result(o:any) {
-        return this._as && IS.obj(o) 
-            ? new (this._as as Constructor<any>)(o) 
-            : o == null
-                ? null
-                : o
+        this.$ = $
     }
 
     as<T extends Constructor<any>>(t:T) {
-        const clone = new SqliteStatement<T,ParamsType>(this.native as any)
+        const clone = new SqliteStatement<T,ParamsType>(this.native as any, this.$)
         clone._as = t
         return clone as any as SqliteStatement<T,ParamsType>
     }
 
     all(...params: ParamsType): Promise<RetType[]> {
-        return Promise.resolve(this.native.all(...params).map(x => this.result(x)))
+        return Promise.resolve(this.all(...params))
     }
     allSync(...params: ParamsType): RetType[] {
-        return this.native.all(...params).map(x => this.result(x))
+        return this.native.all(...params).map(x => this.$.schema.toResult(x, this._as as ClassParam))
     }
     one(...params: ParamsType): Promise<RetType | null> {
-        return Promise.resolve(this.oneSync(...params)) as any
+        return Promise.resolve(this.oneSync(...params))
     }
     oneSync(...params: ParamsType): RetType | null {
-        return this.result(this.native.get(...params))
+        return this.$.schema.toResult(this.native.get(...params), this._as as ClassParam)
     }
 
     column<ReturnValue>(...params: ParamsType): Promise<ReturnValue[]> {
@@ -203,9 +196,9 @@ export class SqliteConnection implements Connection, SyncConnection {
                     sb += `?${i+1}`
                 }
             }
-            return new SqliteStatement(this.native.prepare<ParamsType, ReturnType>(sb))
+            return new SqliteStatement(this.native.prepare<ParamsType, ReturnType>(sb), this.$)
         } else {
-            return new SqliteStatement(this.native.prepare<ParamsType, ReturnType>(sql))
+            return new SqliteStatement(this.native.prepare<ParamsType, ReturnType>(sql), this.$)
         }
     }
 
@@ -219,9 +212,9 @@ export class SqliteConnection implements Connection, SyncConnection {
                     sb += `?${i+1}`
                 }
             }
-            return new SqliteStatement(this.native.prepare<any,ParamsType>(sb) as any)
+            return new SqliteStatement(this.native.prepare<any,ParamsType>(sb) as any, this.$)
         } else {
-            return new SqliteStatement(this.native.prepare<any,ParamsType>(sql) as any)
+            return new SqliteStatement(this.native.prepare<any,ParamsType>(sql) as any, this.$)
         }
     }
 
